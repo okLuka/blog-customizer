@@ -1,15 +1,17 @@
 .container {
-	position: fixed;
-	left: 0;
-	width: 616px;
-	height: 100%;
-	overflow: scroll;
-	transform: translate(-616px);
-	transition: transform 0.5s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 616px;
+  height: 100%;
+  overflow: auto;
+  transform: translateX(-616px);
+  transition: transform 0.5s ease;
+  z-index: 1000;
 }
 
 .container_open {
-	transform: translate(0);
+  transform: translateX(0);
 }
 
 .form {
@@ -23,10 +25,17 @@
 	padding: 50px 31px;
 	background-color: #ffffff;
 	border-right: 1px solid #000000;
+	gap: 40px;
 }
 
 .bottomContainer {
 	display: flex;
 	justify-content: space-between;
 	margin-top: auto;
+}
+
+.title {
+	font-family: var(--font-family, Arial, sans-serif);
+	font-size: 31px;
+	font-weight: 700;
 }
