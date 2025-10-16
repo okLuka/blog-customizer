@@ -14,32 +14,9 @@ const root = createRoot(domNode);
 
 const App = () => {
 
-	const[articleState, setArticleState] = useState<ArticleStateType>(defaultArticleState);
-	const [isFormOpen, setIsFormOpen] = useState<boolean>(true);
-	const lockFormOpen = false;
-
-	const cssVars = useMemo(
-		() =>
-		({
-			'--font-family': articleState.fontFamilyOption.value,
-			'--font-size': articleState.fontSizeOption.value,
-			'--font-color': articleState.fontColor.value,
-			'--container-width': articleState.contentWidth.value,
-			'--bg-color': articleState.backgroundColor.value,
-		} as CSSProperties),
-		[articleState]
-	);
-
 	return (
-		<main className={clsx(styles.main)} style={cssVars}>
-		<ArticleParamsForm
-			isOpen={isFormOpen}
-			onToggle={() => setIsFormOpen((v) => !v)}
-			lockOpen={lockFormOpen}
-			value={articleState}
-			onApply={setArticleState}
-			onReset={() => setArticleState(defaultArticleState)}
-		/>
+		<main className={styles.main}>
+		<ArticleParamsForm />
 		<Article />
 		</main>
 	);

@@ -19,65 +19,57 @@ import {
 
 import styles from './ArticleParamsForm.module.scss';
 
-type Props = {
-	isOpen: boolean;
-	onToggle: () => void;
-	lockOpen?: boolean;
-	value: ArticleStateType;
-	onApply: (next: ArticleStateType) => void;
-	onReset: () => void;
-}
+export const ArticleParamsForm = () => {
+	const [isOpen, setIsOpen] = useState<boolean>(true);
+	const [draft, setDraft] = useState<ArticleStateType>(defaultArticleState);
 
-export const ArticleParamsForm = ({ isOpen, onToggle, lockOpen = false, value, onApply, onReset }: Props) => {
-	const [draft, setDraft] = useState<ArticleStateType>(value);
-  	useEffect(() => setDraft(value), [value]);
 
 	const asideRef = useRef<HTMLElement | null>(null);
   	const arrowRef = useRef<HTMLDivElement | null>(null);
 
-	const effectiveOpen = lockOpen ? true : isOpen;
+	useEffect(() => {
+		applyCssVars(defaultArticleState);
+	}, []);
 
-	const handleArrowClick = () => {
-		if (!lockOpen) onToggle();
-	}
+	const handleArrowClick = () => setIsOpen(v => !v);
 
-	const handlePointerDown = useCallback ((e: PointerEvent) => {
-		const target = e.target as Node | null;
-		if (asideRef.current && target && asideRef.current.contains(target)) return;
-	    if (arrowRef.current && target && arrowRef.current.contains(target)) return;
-	    onToggle();
-	}, [effectiveOpen, onToggle]);
+	const handlePointerDown = useCallback((e: PointerEvent) => {
+		if (!isOpen) return;
+		const t = e.target as Node | null;
+		if (asideRef.current?.contains(t!)) return;
+		if (arrowRef.current?.contains(t!)) return;
+		setIsOpen(false);
+	}, [isOpen]);
 
 	useEffect(() => {
-		if (!effectiveOpen || lockOpen) return;
+		if (!isOpen) return;
 		document.addEventListener('pointerdown', handlePointerDown, true);
-		return () => {
-			document.removeEventListener('pointerdown', handlePointerDown, true);
-		};
-  	}, [effectiveOpen, lockOpen, handlePointerDown]);
+		return () => document.removeEventListener('pointerdown', handlePointerDown, true);
+	}, [isOpen, handlePointerDown])
 
 	const setBy = (k: keyof ArticleStateType) => (opt: OptionType) =>
     setDraft(d => ({ ...d, [k]: opt }) as ArticleStateType);
 
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
-		onApply(draft);
+		applyCssVars(draft)
+		setIsOpen(false);
 	};
 
 	const handleReset = (e: FormEvent) => {
 		e.preventDefault();
 		setDraft(defaultArticleState);
-		onReset();
+		applyCssVars(defaultArticleState);
 	};
 
 	return (
 		<>
 			<div ref={arrowRef}>
-				<ArrowButton isOpen={effectiveOpen} onClick={handleArrowClick} />
+				<ArrowButton isOpen={isOpen} onClick={handleArrowClick} />
 			</div>
 			<aside ref={asideRef as any}
-			className={clsx(styles.container, { [styles.container_open]: effectiveOpen })}
-			aria-hidden={!effectiveOpen}>
+			className={clsx(styles.container, { [styles.container_open]: isOpen })}
+			aria-hidden={!isOpen}>
 				<form className={styles.form} onSubmit={handleSubmit} onReset={handleReset}>
 				<h2 className={styles.title}>ЗАДАЙТЕ ПАРАМЕТРЫ</h2>
 
@@ -147,3 +139,12 @@ export const ArticleParamsForm = ({ isOpen, onToggle, lockOpen = false, value, o
 		</>
 	);
 };
+
+function applyCssVars(s: ArticleStateType) {
+  const root = document.documentElement; // или конкретный контейнер, если нужно
+  root.style.setProperty('--font-family', s.fontFamilyOption.value);
+  root.style.setProperty('--font-size',   s.fontSizeOption.value);
+  root.style.setProperty('--font-color',  s.fontColor.value);
+  root.style.setProperty('--container-width', s.contentWidth.value);
+  root.style.setProperty('--bg-color',    s.backgroundColor.value);
+}
